@@ -79,4 +79,10 @@ public:
      * print a histogram of the response times
      */
     void drawHistogram();
+    /**
+     *
+     * print summary statistics of the response times
+     * including the mean, standard deviation and histogram
+     */
+    void printResults();
 };

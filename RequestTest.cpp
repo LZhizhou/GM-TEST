@@ -10,6 +10,7 @@ void RequestTest ::start(const std ::string &uri)
 {
     m_startTimes.push(std ::chrono ::system_clock ::now());
 }
+
 void RequestTest ::finish()
 {
     std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
@@ -21,6 +22,7 @@ void RequestTest ::finish()
     m_requestTimes.push_back(std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());
     std::sort(m_requestTimes.begin(), m_requestTimes.end());
 }
+
 unsigned int RequestTest ::mean()
 {
     unsigned int sum = 0;
@@ -28,6 +30,7 @@ unsigned int RequestTest ::mean()
         sum += requestTime;
     return sum / m_requestTimes.size();
 }
+
 unsigned int RequestTest ::standardDeviation()
 {
     unsigned int sum = 0;
@@ -41,6 +44,7 @@ std::map<int, int> RequestTest::generateHistogram()
 {
     return generateHistogram(RequestTest::m_maxNumberOfBins);
 }
+
 std::map<int, int> RequestTest::generateHistogram(int numberOfBins)
 {
     std::map<int, int> histogram;
@@ -124,4 +128,11 @@ void RequestTest::drawHistogram()
         std::cout << std::left << bin.first;
     }
     std::cout << std::endl;
+}
+
+void RequestTest::printResults()
+{
+    std::cout << "Mean: " << RequestTest::mean() << " milliseconds" << std::endl;
+    std::cout << "Standard deviation: " << RequestTest::standardDeviation() << " milliseconds" << std::endl;
+    RequestTest::drawHistogram();
 }
