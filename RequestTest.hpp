@@ -3,6 +3,7 @@
 #include <chrono>
 #include <map>
 #include <queue>
+#include <string>
 
 /**
  * Resource request testing class
@@ -23,24 +24,31 @@ private:
     /**
      * The response time of requests processed in milliseconds
      */
-    std::vector<int> m_requestTimes;
+    std::map<std ::string, std::vector<int>> m_requestTimes;
     /**
      * The start time of the current request
      */
-    std::chrono::system_clock::time_point m_startTime;
+    std::pair<std::string, std::chrono::system_clock::time_point> m_startTime;
     /**
-     * Convert the existing request response time into a mapping, where the key is
-     * the value to the left of the bin and the value is the number within the bin.
      *
-     * @param [in] numberOfBins The number of bins to use in the histogram
+     * Compute histograms of the given vector of response times.
+     * Start with the maximum number of bins and reduce the number of bins until
+     * all bins are filled.
+     *
+     * @param [in] requestTimes The vector of request response times
+     *
+     * @param [in] numberOfBins The max number of bins to use in the histogram
      */
-    std::map<int, int> generateHistogram(int numberOfBins);
+    std::map<int, int> generateHistogram(std::vector<int> requestTimes, int numberOfBins);
+
     /**
-     * overloaded version of generateHistogram that uses the default number of bins
      *
-     * of @see #m_maxNumberOfBins
+     * print a given histogram.
+     *
+     * @param [in] histogram The histogram to print,
+     * should be the result of @see #generateHistogram
      */
-    std::map<int, int> generateHistogram();
+    void drawHistogram(std::map<int, int> histogram);
 
 protected:
     /**
@@ -63,21 +71,26 @@ public:
      * @param [in] maxNumberOfBins The maximum number of bins per histogram
      */
     RequestTest(int maxNumberOfBins) : m_maxNumberOfBins(maxNumberOfBins) {}
+
     /**
      *
      * @return the mean response time of all requests
      */
-    unsigned int mean();
+    std::map<std::string, double> mean();
+
     /**
      *
      * @return the standard deviation of the response times
      */
-    unsigned int standardDeviation();
+    std::map<std::string, double> standardDeviation();
+
     /**
+     * use @see #generateHistogram to compute the histogram of the @see #m_requestTimes
      *
-     * print a histogram of the response times
+     * @return The map of URL to The histogram of its response times
+     *
      */
-    void drawHistogram();
+    std::map<std::string, std::map<int, int>> generateHistograms();
     /**
      *
      * print summary statistics of the response times

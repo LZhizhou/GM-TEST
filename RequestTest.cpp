@@ -3,54 +3,72 @@
 #include <iostream>
 #include <algorithm>
 #include <map>
-#include <math.h>
+#include <cmath>
 #include <numeric>
 
 void RequestTest ::start(const std ::string &uri)
 {
-    m_startTime = std ::chrono ::system_clock ::now();
+    m_startTime = std::make_pair(uri, std::chrono::system_clock::now());
 }
 
 void RequestTest ::finish()
 {
+
     std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
     // calculate the response time in milliseconds
-    m_requestTimes.push_back(std::chrono::duration_cast<std::chrono::milliseconds>(endTime - m_startTime).count());
-    std::sort(m_requestTimes.begin(), m_requestTimes.end());
+    m_requestTimes[m_startTime.first].push_back(std::chrono::duration_cast<std::chrono::milliseconds>(endTime - m_startTime.second).count());
 }
 
-unsigned int RequestTest ::mean()
+std::map<std::string, double> RequestTest ::mean()
 {
-    unsigned int sum = 0;
-    for (auto &requestTime : m_requestTimes)
-        sum += requestTime;
-    return sum / m_requestTimes.size();
+    std::map<std::string, double> means;
+    for (auto &request : m_requestTimes)
+    {
+        for (auto &responseTime : request.second)
+        {
+            means[request.first] = std::accumulate(request.second.begin(), request.second.end(), 0.0) / request.second.size();
+        }
+    }
+    return means;
 }
 
-unsigned int RequestTest ::standardDeviation()
+std::map<std::string, double> RequestTest ::standardDeviation()
 {
-    unsigned int sum = 0;
-    unsigned int mean = RequestTest::mean();
-    for (auto &requestTime : m_requestTimes)
-        sum += (requestTime - mean) * (requestTime - mean);
-    return sum / m_requestTimes.size();
+    std::map<std::string, double> means = RequestTest::mean();
+    std::map<std::string, double> standardDeviations;
+    for (auto &request : m_requestTimes)
+    {
+        double mean = means[request.first];
+        for (auto &responseTime : request.second)
+        {
+            standardDeviations[request.first] += pow(responseTime - mean, 2);
+        }
+        standardDeviations[request.first] = sqrt(standardDeviations[request.first] / request.second.size());
+    }
+    return standardDeviations;
 }
 
-std::map<int, int> RequestTest::generateHistogram()
+std::map<std::string, std::map<int, int>> RequestTest ::generateHistograms()
 {
-    return generateHistogram(RequestTest::m_maxNumberOfBins);
+    std::map<std::string, std::map<int, int>> histograms;
+    for (auto &request : m_requestTimes)
+    {
+        histograms[request.first] = RequestTest::generateHistogram(request.second, m_maxNumberOfBins);
+    }
+
+    return histograms;
 }
 
-std::map<int, int> RequestTest::generateHistogram(int numberOfBins)
+std::map<int, int> RequestTest::generateHistogram(std::vector<int> requestTimes, int numberOfBins)
 {
     std::map<int, int> histogram;
-    int minElement = *std::min_element(m_requestTimes.begin(), m_requestTimes.end());
-    int maxElement = *std::max_element(m_requestTimes.begin(), m_requestTimes.end());
+    int minElement = *std::min_element(requestTimes.begin(), requestTimes.end());
+    int maxElement = *std::max_element(requestTimes.begin(), requestTimes.end());
     // Boundaries of bins should be int, and it should be rounded to the nearest int.
     // to avoid the situation that potentially makes the number of bins exceeds the limit
     int binSize = ceil((maxElement - minElement) / numberOfBins);
 
-    for (auto &requestTime : m_requestTimes)
+    for (auto &requestTime : requestTimes)
     {
         // calculate which bin the request time belongs to
         int binNumber = ceil((requestTime - minElement) / binSize);
@@ -65,7 +83,7 @@ std::map<int, int> RequestTest::generateHistogram(int numberOfBins)
         // check if the bin is empty
         if (histogram.count(i) == 0)
         {
-            return generateHistogram(numberOfBins - 1);
+            return generateHistogram(requestTimes, numberOfBins - 1);
         }
     }
     // add the upper bound of the last bin
@@ -73,10 +91,8 @@ std::map<int, int> RequestTest::generateHistogram(int numberOfBins)
     return histogram;
 }
 
-void RequestTest::drawHistogram()
+void RequestTest::drawHistogram(std::map<int, int> histogram)
 {
-    std::map<int, int> histogram = generateHistogram();
-
     int maxElement = (*std::max_element(
                           histogram.begin(), histogram.end(),
                           [](const std::pair<int, int> &p1, const std::pair<int, int> &p2)
@@ -128,7 +144,16 @@ void RequestTest::drawHistogram()
 
 void RequestTest::printResults()
 {
-    std::cout << "Mean: " << RequestTest::mean() << " milliseconds" << std::endl;
-    std::cout << "Standard deviation: " << RequestTest::standardDeviation() << " milliseconds" << std::endl;
-    RequestTest::drawHistogram();
+    auto means = RequestTest::mean();
+    auto standardDeviations = RequestTest::standardDeviation();
+    auto histograms = RequestTest::generateHistograms();
+    for (auto &request : m_requestTimes)
+    {
+        std::cout << "Request " << request.first << ": " << std::endl;
+        std::cout << "mean: " << means[request.first] << "ms, " << std::endl;
+        std::cout << "standard deviation: " << standardDeviations[request.first] << "ms, " << std::endl;
+        std::cout << "histogram: " << std::endl;
+        RequestTest::drawHistogram(histograms[request.first]);
+        std::cout << std::endl;
+    }
 }
