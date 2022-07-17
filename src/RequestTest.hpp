@@ -8,9 +8,9 @@
 /**
  * Resource request testing class
  *
- * Instantiations of this class do state based processing of resource requests .
- * To use , instantiate an object and call process () on a URI to get the response
- * data.
+ * Instantiations of this class do state based processing of resource requests.
+ * To use , instantiate an object and call process () on a URI to get the
+ * response data.
  * @see #Constructor(int)
  */
 class RequestTest : public Request
@@ -32,14 +32,15 @@ private:
     /**
      *
      * Compute normalized histograms of the given vector of response times.
-     * Start with the maximum number of bins and reduce the number of bins until
-     * all bins are filled.
+     * Start with the maximum number of bins and reduce the number of bins
+     * until all bins are filled.
      *
      * @param [in] requestTimes The vector of request response times
      *
      * @param [in] numberOfBins The max number of bins to use in the histogram
      */
-    std::map<int, int> generateHistogram(std::vector<int> requestTimes, int numberOfBins);
+    std::map<int, int> generateHistogram(std::vector<int> requestTimes,
+                                         int numberOfBins);
 
     /**
      *
@@ -54,12 +55,13 @@ protected:
     /**
      * Start processing the request
      *
-     * push start time onto queue @see #m_startTimes
+     * save start time onto @see #m_startTime
      *
      * @param [in] uri The URI of the request endpoint
      */
     void start(const std ::string &uri) override;
-    /** Finish processing the request, pop start time from queue @see #m_startTimes
+    /**
+     * Finish processing the request
      * calculate the response time and push it onto @see #m_requestTimes
      */
     void finish() override;
@@ -74,18 +76,19 @@ public:
 
     /**
      *
-     * @return the mean response time of all requests
+     * @return the map of URL to the mean response time of its requests
      */
     std::map<std::string, double> mean();
 
     /**
      *
-     * @return the standard deviation of the response times
+     * @return the map of URL to  the standard deviation of its requests
      */
     std::map<std::string, double> standardDeviation();
 
     /**
-     * use @see #generateHistogram to compute the histogram of the @see #m_requestTimes
+     * use @see #generateHistogram to compute the histogram
+     * of the @see #m_requestTimes
      *
      * @return The map of URL to The histogram of its response times
      *
