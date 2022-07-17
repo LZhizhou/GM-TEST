@@ -31,7 +31,7 @@ private:
     std::pair<std::string, std::chrono::system_clock::time_point> m_startTime;
     /**
      *
-     * Compute histograms of the given vector of response times.
+     * Compute normalized histograms of the given vector of response times.
      * Start with the maximum number of bins and reduce the number of bins until
      * all bins are filled.
      *

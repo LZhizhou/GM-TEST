@@ -24,10 +24,7 @@ std::map<std::string, double> RequestTest ::mean()
     std::map<std::string, double> means;
     for (auto &request : m_requestTimes)
     {
-        for (auto &responseTime : request.second)
-        {
-            means[request.first] = std::accumulate(request.second.begin(), request.second.end(), 0.0) / request.second.size();
-        }
+        means[request.first] = std::accumulate(request.second.begin(), request.second.end(), 0.0) / request.second.size();
     }
     return means;
 }
@@ -64,9 +61,10 @@ std::map<int, int> RequestTest::generateHistogram(std::vector<int> requestTimes,
     std::map<int, int> histogram;
     int minElement = *std::min_element(requestTimes.begin(), requestTimes.end());
     int maxElement = *std::max_element(requestTimes.begin(), requestTimes.end());
+
     // Boundaries of bins should be int, and it should be rounded to the nearest int.
     // to avoid the situation that potentially makes the number of bins exceeds the limit
-    int binSize = ceil((maxElement - minElement) / numberOfBins);
+    int binSize = ceil(1.0 * (maxElement - minElement) / numberOfBins);
 
     for (auto &requestTime : requestTimes)
     {
@@ -74,20 +72,26 @@ std::map<int, int> RequestTest::generateHistogram(std::vector<int> requestTimes,
         int binNumber = ceil((requestTime - minElement) / binSize);
         histogram[minElement + binNumber * binSize]++;
     }
-    int binCount = floor((maxElement - minElement) / binSize);
+
+    // normalize the histogram
+    for (auto &bin : histogram)
+    {
+        bin.second = ceil(100.0 * bin.second / requestTimes.size());
+    }
 
     // Iterate the bins of histogram check if there is any empty bin
     // If there is, we should reduce the number of bins
-    for (int i = minElement; i < minElement + binCount * binSize; i += binSize)
+    for (int i = minElement; i < minElement + numberOfBins * binSize; i += binSize)
     {
         // check if the bin is empty
-        if (histogram.count(i) == 0)
+        if (histogram.count(i) == 0 || histogram.at(i) == 0)
         {
             return generateHistogram(requestTimes, numberOfBins - 1);
         }
     }
+
     // add the upper bound of the last bin
-    histogram[minElement + (binCount + 1) * binSize] = 0;
+    histogram[minElement + (numberOfBins + 1) * binSize] = 0;
     return histogram;
 }
 
@@ -100,16 +104,11 @@ void RequestTest::drawHistogram(std::map<int, int> histogram)
                               return p1.second < p2.second;
                           }))
                          .second;
-    int sum = std::accumulate(histogram.begin(), histogram.end(), 0,
-                              [](const int prevSum, const std::pair<int, int> &entry)
-                              {
-                                  return prevSum + entry.second;
-                              });
     for (int i = maxElement; i > 0; i--)
     {
         std::cout.width(2);
         // print y-axis
-        std::cout << std::right << 100 * i / sum << "% | ";
+        std::cout << std::right << i << "% | ";
         // draw histogram from top to bottom
         for (auto &bin : histogram)
         {
@@ -125,7 +124,7 @@ void RequestTest::drawHistogram(std::map<int, int> histogram)
         std::cout << "\n";
     }
 
-    for (int i = 0; i < histogram.size(); i++)
+    for (size_t i = 0; i < histogram.size(); i++)
     {
         std::cout << "-------";
     }
