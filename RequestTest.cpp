@@ -13,8 +13,11 @@ void RequestTest ::start(const std ::string &uri)
 void RequestTest ::finish()
 {
     std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
+    // get the start time of the request
     std::chrono::system_clock::time_point startTime = m_startTimes.front();
+    // pop start time from queue
     m_startTimes.pop();
+    // calculate the response time in milliseconds
     m_requestTimes.push_back(std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());
     std::sort(m_requestTimes.begin(), m_requestTimes.end());
 }
@@ -43,22 +46,29 @@ std::map<int, int> RequestTest::generateHistogram(int numberOfBins)
     std::map<int, int> histogram;
     int minElement = *std::min_element(m_requestTimes.begin(), m_requestTimes.end());
     int maxElement = *std::max_element(m_requestTimes.begin(), m_requestTimes.end());
+    // Boundaries of bins should be int, and it should be rounded to the nearest int.
+    // to avoid the situation that potentially makes the number of bins exceeds the limit
     int binSize = ceil((maxElement - minElement) / numberOfBins);
 
     for (auto &requestTime : m_requestTimes)
     {
+        // calculate which bin the request time belongs to
         int binNumber = ceil((requestTime - minElement) / binSize);
         histogram[minElement + binNumber * binSize]++;
     }
     int binCount = floor((maxElement - minElement) / binSize);
 
+    // Iterate the bins of histogram check if there is any empty bin
+    // If there is, we should reduce the number of bins
     for (int i = minElement; i < minElement + binCount * binSize; i += binSize)
     {
+        // check if the bin is empty
         if (histogram.count(i) == 0)
         {
             return generateHistogram(numberOfBins - 1);
         }
     }
+    // add the upper bound of the last bin
     histogram[minElement + (binCount + 1) * binSize] = 0;
     return histogram;
 }
@@ -67,21 +77,22 @@ void RequestTest::drawHistogram()
 {
     std::map<int, int> histogram = generateHistogram();
 
-    int maxEle = (*std::max_element(
-                      histogram.begin(), histogram.end(),
-                      [](const std::pair<int, int> &p1, const std::pair<int, int> &p2)
-                      {
-                          return p1.second < p2.second;
-                      }))
-                     .second;
+    int maxElement = (*std::max_element(
+                          histogram.begin(), histogram.end(),
+                          [](const std::pair<int, int> &p1, const std::pair<int, int> &p2)
+                          {
+                              return p1.second < p2.second;
+                          }))
+                         .second;
     int sum = std::accumulate(histogram.begin(), histogram.end(), 0,
                               [](const int prevSum, const std::pair<int, int> &entry)
                               {
                                   return prevSum + entry.second;
                               });
-    for (int i = maxEle; i > 0; i--)
+    for (int i = maxElement; i > 0; i--)
     {
         std::cout.width(2);
+        // print y-axis
         std::cout << std::right << 100 * i / sum << "% | ";
         for (auto &bin : histogram)
         {
@@ -105,6 +116,7 @@ void RequestTest::drawHistogram()
     std::cout << std::endl
               << "      ";
 
+    // print x-axis
     for (auto &bin : histogram)
     {
         std::cout.width(7);
