@@ -19,6 +19,7 @@
 ```
 make
 ```
+The executable will be stored as `/bin/<platform>/debug/program`
 
 ### Running
 ```
