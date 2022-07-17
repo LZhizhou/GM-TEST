@@ -66,9 +66,49 @@ std::map<int, int> RequestTest::generateHistogram(int numberOfBins)
 void RequestTest::drawHistogram()
 {
     std::map<int, int> histogram = generateHistogram();
-    std::cout << "Histogram:" << std::endl;
+
+    int maxEle = (*std::max_element(
+                      histogram.begin(), histogram.end(),
+                      [](const std::pair<int, int> &p1, const std::pair<int, int> &p2)
+                      {
+                          return p1.second < p2.second;
+                      }))
+                     .second;
+    int sum = std::accumulate(histogram.begin(), histogram.end(), 0,
+                              [](const int prevSum, const std::pair<int, int> &entry)
+                              {
+                                  return prevSum + entry.second;
+                              });
+    for (int i = maxEle; i > 0; i--)
+    {
+        std::cout.width(2);
+        std::cout << std::right << 100 * i / sum << "% | ";
+        for (auto &bin : histogram)
+        {
+            if (bin.second >= i)
+            {
+                std::cout << "   *   ";
+            }
+            else
+            {
+                std::cout << "       ";
+            }
+        }
+        std::cout << "\n";
+    }
+
+    for (int i = 0; i < histogram.size(); i++)
+    {
+        std::cout << "-------";
+    }
+
+    std::cout << std::endl
+              << "      ";
+
     for (auto &bin : histogram)
     {
-        std::cout << bin.first << " - " << bin.first + bin.second << ": " << bin.second << std::endl;
+        std::cout.width(7);
+        std::cout << std::left << bin.first;
     }
+    std::cout << std::endl;
 }
