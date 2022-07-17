@@ -94,6 +94,7 @@ void RequestTest::drawHistogram()
         std::cout.width(2);
         // print y-axis
         std::cout << std::right << 100 * i / sum << "% | ";
+        // draw histogram from top to bottom
         for (auto &bin : histogram)
         {
             if (bin.second >= i)
