@@ -25,10 +25,9 @@ private:
      */
     std::vector<int> m_requestTimes;
     /**
-     * This queue holds the start time of all requests that have not yet finished,
-     * the more front the earlier is processed
+     * The start time of the current request
      */
-    std::queue<std::chrono::system_clock::time_point> m_startTimes;
+    std::chrono::system_clock::time_point m_startTime;
     /**
      * Convert the existing request response time into a mapping, where the key is
      * the value to the left of the bin and the value is the number within the bin.

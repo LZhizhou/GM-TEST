@@ -8,18 +8,14 @@
 
 void RequestTest ::start(const std ::string &uri)
 {
-    m_startTimes.push(std ::chrono ::system_clock ::now());
+    m_startTime = std ::chrono ::system_clock ::now();
 }
 
 void RequestTest ::finish()
 {
     std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
-    // get the start time of the request
-    std::chrono::system_clock::time_point startTime = m_startTimes.front();
-    // pop start time from queue
-    m_startTimes.pop();
     // calculate the response time in milliseconds
-    m_requestTimes.push_back(std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count());
+    m_requestTimes.push_back(std::chrono::duration_cast<std::chrono::milliseconds>(endTime - m_startTime).count());
     std::sort(m_requestTimes.begin(), m_requestTimes.end());
 }
 
