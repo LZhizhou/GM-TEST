@@ -39,8 +39,8 @@ private:
      *
      * @param [in] numberOfBins The max number of bins to use in the histogram
      */
-    std::map<int, int> generateHistogram(std::vector<int> requestTimes,
-                                         int numberOfBins);
+    std::map<int, int> generateHistogram(const std::vector<int> requestTimes,
+                                         const int numberOfBins);
 
     /**
      *
@@ -49,7 +49,7 @@ private:
      * @param [in] histogram The histogram to print,
      * should be the result of @see #generateHistogram
      */
-    void drawHistogram(std::map<int, int> histogram);
+    void drawHistogram(const std::map<int, int> histogram);
 
 protected:
     /**
@@ -72,7 +72,7 @@ public:
      *
      * @param [in] maxNumberOfBins The maximum number of bins per histogram
      */
-    RequestTest(int maxNumberOfBins) : m_maxNumberOfBins(maxNumberOfBins) {}
+    RequestTest(const int maxNumberOfBins) : m_maxNumberOfBins(maxNumberOfBins) {}
 
     /**
      *

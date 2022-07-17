@@ -22,7 +22,7 @@ void RequestTest ::finish()
 std::map<std::string, double> RequestTest ::mean()
 {
     std::map<std::string, double> means;
-    for (auto &request : m_requestTimes)
+    for (auto request : m_requestTimes)
     {
         means[request.first] = std::accumulate(request.second.begin(), request.second.end(), 0.0) / request.second.size();
     }
@@ -33,10 +33,10 @@ std::map<std::string, double> RequestTest ::standardDeviation()
 {
     std::map<std::string, double> means = RequestTest::mean();
     std::map<std::string, double> standardDeviations;
-    for (auto &request : m_requestTimes)
+    for (auto request : m_requestTimes)
     {
         double mean = means[request.first];
-        for (auto &responseTime : request.second)
+        for (auto responseTime : request.second)
         {
             standardDeviations[request.first] += pow(responseTime - mean, 2);
         }
@@ -48,7 +48,7 @@ std::map<std::string, double> RequestTest ::standardDeviation()
 std::map<std::string, std::map<int, int>> RequestTest ::generateHistograms()
 {
     std::map<std::string, std::map<int, int>> histograms;
-    for (auto &request : m_requestTimes)
+    for (auto request : m_requestTimes)
     {
         histograms[request.first] = RequestTest::generateHistogram(request.second, m_maxNumberOfBins);
     }
@@ -56,7 +56,7 @@ std::map<std::string, std::map<int, int>> RequestTest ::generateHistograms()
     return histograms;
 }
 
-std::map<int, int> RequestTest::generateHistogram(std::vector<int> requestTimes, int numberOfBins)
+std::map<int, int> RequestTest::generateHistogram(const std::vector<int> requestTimes, const int numberOfBins)
 {
     std::map<int, int> histogram;
     int minElement = *std::min_element(requestTimes.begin(), requestTimes.end());
@@ -66,7 +66,7 @@ std::map<int, int> RequestTest::generateHistogram(std::vector<int> requestTimes,
     // to avoid the situation that potentially makes the number of bins exceeds the limit
     int binSize = ceil(1.0 * (maxElement - minElement) / numberOfBins);
 
-    for (auto &requestTime : requestTimes)
+    for (auto requestTime : requestTimes)
     {
         // calculate which bin the request time belongs to
         int binNumber = ceil((requestTime - minElement) / binSize);
@@ -95,7 +95,7 @@ std::map<int, int> RequestTest::generateHistogram(std::vector<int> requestTimes,
     return histogram;
 }
 
-void RequestTest::drawHistogram(std::map<int, int> histogram)
+void RequestTest::drawHistogram(const std::map<int, int> histogram)
 {
     int maxElement = (*std::max_element(
                           histogram.begin(), histogram.end(),
@@ -110,7 +110,7 @@ void RequestTest::drawHistogram(std::map<int, int> histogram)
         // print y-axis
         std::cout << std::right << i << "% | ";
         // draw histogram from top to bottom
-        for (auto &bin : histogram)
+        for (auto bin : histogram)
         {
             if (bin.second >= i)
             {
@@ -133,7 +133,7 @@ void RequestTest::drawHistogram(std::map<int, int> histogram)
               << "      ";
 
     // print x-axis
-    for (auto &bin : histogram)
+    for (auto bin : histogram)
     {
         std::cout.width(7);
         std::cout << std::left << bin.first;
@@ -146,7 +146,7 @@ void RequestTest::printResults()
     auto means = RequestTest::mean();
     auto standardDeviations = RequestTest::standardDeviation();
     auto histograms = RequestTest::generateHistograms();
-    for (auto &request : m_requestTimes)
+    for (auto request : m_requestTimes)
     {
         std::cout << "Request " << request.first << ": " << std::endl;
         std::cout << "mean: " << means[request.first] << "ms, " << std::endl;
