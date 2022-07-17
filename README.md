@@ -32,6 +32,10 @@ make
 ```
 ./bin/macos/debug/program -b 15 -u url1  -n 200 -u url2 -n 200
 ```
+- Exmaple on Windows-64
+```
+./bin/windows64/debug/program.exe -b 15 -u url1  -n 200 -u url2 -n 200
+```
 
 
 
